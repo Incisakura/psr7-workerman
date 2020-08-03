@@ -83,6 +83,7 @@ class ServerRequest
 
         if ($project instanceof ServerRequestFactoryInterface) {
             static::$serverRequestFactory = $project;
+            return;
         }
 
         if ($project != '' && array_key_exists($project, $serverRequestCreators)) {

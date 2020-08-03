@@ -1,6 +1,11 @@
 {
-    "name": "incisakura/Psr7Workerman",
+    "name": "incisakura/psr7-workerman",
+    "description": "Makes Workerman works with ANY PSR-7 project",
+    "type": "library",
+    "keywords": ["psr7", "psr17", "workerman", "event"],
+    "license": "MIT",
     "require": {
+        "php": "^7.2",
         "workerman/workerman": "^4.0"
     },
     "autoload": {

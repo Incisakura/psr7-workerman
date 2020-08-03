@@ -12,52 +12,55 @@ use Workerman\Worker as WorkermanWorker;
 class Worker extends WorkermanWorker
 {
     /** @var string */
-    protected $staticRoot;
+    protected $static_root;
 
     /**
      * Worker Constructor
      *
      * @param string        $socket_name        http schema
      * @param string|object $psr7               PSR7 Project to construct
-     * @param string        $staticRoot         Root of static file
+     * @param string        $static_root         Root of static file
      * @param string        $context_option     Context option for workerman
      */
     public function __construct(
         string $socket_name = 'http://127.0.0.1:233',
         $psr7 = '',
-        string $staticRoot = '',
+        string $static_root = '',
         array $context_option = []
     ) {
         parent::__construct($socket_name, $context_option);
         ServerRequest::setServerRequestFactory($psr7);
-        $this->staticRoot = rtrim($staticRoot, '/\\');
+        $this->static_root = rtrim($static_root, '/\\');
     }
 
     /**
      * Workerman onMessage event
      *
-     * @param callable $call With param `ServerRequestInterface`
+     * @param callable $call (`ServerRequestInterface`): `ResponseInterface`
      */
     public function onMessage(callable $call)
     {
         $this->onMessage = function (ConnectionInterface $connection, Request $data) use ($call) {
+            // Cookie clean
+            $_COOKIE = Cookie::$cookies = [];
+
             $path = $data->path();
-            if ($this->staticRoot != '' && is_file($this->staticRoot . $path)) {
+            if ($this->static_root != '' && is_file($this->static_root . $path)) {
                 $wmResponse = new Response();
-                $wmResponse->withFile($this->staticRoot . $path);
+                $wmResponse->withFile($this->static_root . $path);
             } else {
                 // PSR-7 event
-                Cookies::$cookies = $data->cookie();
+                $_COOKIE = $data->cookie(); // Init $_COOKIE
                 $request = ServerRequest::getServerRequest($data);
+                /** @var \Psr\Http\Message\ResponseInterface */
                 $response = $call($request);
 
-                // Workerman Response construct & send
                 $wmResponse = new Response(
                     $response->getStatusCode(),
                     $response->getHeaders(),
                     $response->getBody()->__toString()
                 );
-                Cookies::push($wmResponse);
+                Cookie::push($wmResponse);
             }
             $connection->send($wmResponse);
         };

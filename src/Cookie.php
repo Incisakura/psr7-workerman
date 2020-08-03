@@ -6,21 +6,14 @@ namespace Psr7Workerman;
 
 use Workerman\Protocols\Http\Response;
 
-class Cookies
+class Cookie
 {
     /**
-     * $_COOKIE
+     * Cookies to send to client
      *
      * @var string[][]
      */
     public static $cookies = [];
-
-    /**
-     * Cookies to send
-     *
-     * @var string[][]
-     */
-    public static $cookiesToSend = [];
 
     /**
      * setcookie()
@@ -34,7 +27,7 @@ class Cookies
         bool $secure = false,
         bool $http_only = false
     ) {
-        static::$cookiesToSend[$name] = func_get_args();
+        static::$cookies[$name] = func_get_args();
         return true;
     }
 
@@ -45,7 +38,7 @@ class Cookies
      */
     public static function push(Response $response)
     {
-        foreach (static::$cookiesToSend as $cookie) {
+        foreach (static::$cookies as $cookie) {
             $response->cookie(...$cookie);
         }
     }
@@ -56,7 +49,7 @@ class Cookies
  *
  * @return true
  */
-function set(
+function cookieset(
     string $name,
     string $value = '',
     int $expire = 0,
@@ -65,5 +58,5 @@ function set(
     bool $secure = false,
     bool $http_only = false
 ) {
-    return Cookies::set(...func_get_args());
+    return Cookie::set(...func_get_args());
 }
