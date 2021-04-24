@@ -18,8 +18,8 @@ class Worker extends WorkermanWorker
      * Worker Constructor
      *
      * @param string        $socket_name        http schema
-     * @param string|object $psr7               PSR7 Project to construct
-     * @param string        $static_root         Root of static file
+     * @param string|object $psr7               PSR-7 Project to construct
+     * @param string        $static_root        Root of static file
      * @param string        $context_option     Context option for workerman
      */
     public function __construct(
@@ -41,16 +41,12 @@ class Worker extends WorkermanWorker
     public function onMessage(callable $call)
     {
         $this->onMessage = function (ConnectionInterface $connection, Request $data) use ($call) {
-            // Cookie clean
-            $_COOKIE = Cookie::$cookies = [];
-
             $path = $data->path();
             if ($this->static_root != '' && is_file($this->static_root . $path)) {
                 $wmResponse = new Response();
                 $wmResponse->withFile($this->static_root . $path);
             } else {
                 // PSR-7 event
-                $_COOKIE = $data->cookie(); // Init $_COOKIE
                 $request = ServerRequest::getServerRequest($data);
                 /** @var \Psr\Http\Message\ResponseInterface */
                 $response = $call($request);
@@ -60,7 +56,6 @@ class Worker extends WorkermanWorker
                     $response->getHeaders(),
                     $response->getBody()->__toString()
                 );
-                Cookie::push($wmResponse);
             }
             $connection->send($wmResponse);
         };

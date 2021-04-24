@@ -5,12 +5,14 @@
     "keywords": ["psr7", "psr17", "workerman", "event"],
     "license": "MIT",
     "require": {
-        "php": "^7.2",
-        "workerman/workerman": "^4.0"
+        "php": "^7.2|^8.0",
+        "workerman/workerman": "^4.0",
+        "psr/http-message": "^1.0"
     },
     "autoload": {
         "psr-4": {
             "Psr7Workerman\\": "src"
-        }
+        },
+        "files": ["src/Cookie.php"]
     }
 }

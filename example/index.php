@@ -7,20 +7,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
 use Psr7Workerman\Worker;
 
-// ↓ Import function for set cookie ↓
-
-use function Psr7Workerman\cookieset;
-
 require __DIR__ . '/vendor/autoload.php';
+
+// To run this file, you need to require slim/slim:^4.0
 
 // Init app
 $app = AppFactory::create();
-$app->get('/', function ($request, $response, $args) {
-    cookieset('name', '233'); // Set cookies, setcookie() is invalid.
-    // You can also use it by Psr7Workerman\Cookie::set().
-    // Use $_COOKIE to get client cookie.
-    $name = $_COOKIE['name'];
-    $response->getBody()->write('Hello World!!!' . $name);
+$app->get('/', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+    // $_COOKIE is invaild. Please use $request->getCookieParams() to read cookies.
+    // Please use $response->withHeader('Set-Cookie', `cookie string`) to set cookie instead of \cookieset()
+    $cookies = $request->getCookieParams();
+    $name = isset($cookies['name']) ? $cookies['name'] : 'Wagatomo';
+    $response->withHeader('Set-Cookie', cookie_build('name', 'Sakura'))->getBody()->write('Hello World!!! ' . $name);
     return $response;
 });
 
