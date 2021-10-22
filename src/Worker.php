@@ -24,12 +24,12 @@ class Worker extends WorkermanWorker
      */
     public function __construct(
         string $socket_name = 'http://127.0.0.1:233',
-        $psr7 = '',
+        string $psr17 = '',
         string $static_root = '',
         array $context_option = []
     ) {
         parent::__construct($socket_name, $context_option);
-        ServerRequest::setServerRequestFactory($psr7);
+        ServerRequest::setServerRequestFactory($psr17);
         $this->static_root = rtrim($static_root, '/\\');
     }
 

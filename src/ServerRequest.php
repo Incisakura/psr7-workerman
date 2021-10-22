@@ -16,9 +16,9 @@ class ServerRequest
      * @var array
      */
     public const SERVER_REQUEST_CREATORS = [
-        'guzzle'    => 'GuzzleHttp\Psr7\HttpFactory',
-        'laminas'   => 'Laminas\Diactoros\ServerRequestFactory',
-        'slim'      => 'Slim\Psr7\Factory\ServerRequestFactory',
+        'GuzzleHttp\Psr7\HttpFactory',
+        'Laminas\Diactoros\ServerRequestFactory',
+        'Slim\Psr7\Factory\ServerRequestFactory'
     ];
 
     /** @var ServerRequestFactoryInterface */
@@ -74,29 +74,17 @@ class ServerRequest
     /**
      * Set static serverRequestFactory
      *
-     * @param string|object $project
+     * @param string $project
      * @throws \RuntimeException
      */
     public static function setServerRequestFactory($project): void
     {
-        $serverRequestCreators = static::SERVER_REQUEST_CREATORS;
-
-        if ($project instanceof ServerRequestFactoryInterface) {
-            static::$serverRequestFactory = $project;
-            return;
-        }
-
-        if ($project != '' && array_key_exists($project, $serverRequestCreators)) {
-            static::$serverRequestFactory = new $serverRequestCreators[$project]();
-            return;
-        }
-
         if (class_exists($project) && is_a($project, ServerRequestFactoryInterface::class, true)) {
             static::$serverRequestFactory = new $project();
             return;
         }
 
-        foreach ($serverRequestCreators as $serverRequestCreator) {
+        foreach (self::SERVER_REQUEST_CREATORS as $serverRequestCreator) {
             if (class_exists($serverRequestCreator)) {
                 static::$serverRequestFactory = new $serverRequestCreator();
                 return;
